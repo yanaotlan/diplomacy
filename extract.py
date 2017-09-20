@@ -158,8 +158,8 @@ def extract_page_contents(path):
     if len(date_tags) > 0:
         date = extract_date(date_tags[0].text)
     if not date:
-        date = extract_date(title)
-    if not date:
+        maybe_date = extract_date(title)
+    if not date and not maybe_date:
         maybe_date = extract_date(soup.text)
     #if not date and not maybe_date:
         #raise Exception('Failed to find a date for {}'.format(path))
