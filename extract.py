@@ -137,6 +137,7 @@ def tests():
     #test_extract_date('the second day of June, the year of our Lord One thousand eight hundred and sixty-five.','1865-06-02')
     test_extract_date('on the 12th day of May, in the year 1865','1865-05-12')
     test_extract_date('on the 12th day of May, in the year of our Lord 1865','1865-05-12')
+    test_extract_date('File No. 837.00/571. [Document 336]February 19, 1912.No. 122.]Sir: I','1912-02-19')
     
 def extract_page_contents(path):
     """Extract title, date and text from the given HTML document (returns True if successful)"""
