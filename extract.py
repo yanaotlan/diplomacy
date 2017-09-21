@@ -53,9 +53,19 @@ def extract_date(text, offset=0):
     text = text[offset:]
     
     # First we search for a month by full name. (A|B finds either A or B.)
-    months = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
-              'august', 'september', 'october', 'november', 'december']
-    match = re.search('|'.join(months), text, flags = re.IGNORECASE) 
+    months = {'january':1, 'jan.':1,
+              'february':2, 'feb.':2,
+              'march':3, 'mar.':3,
+              'april':4, 'apr.':4,
+              'may':5, 
+              'june':6, 'jun.':6,
+              'july':7, 'jul.':7,
+              'august':8, 'aug.':8, 
+              'september':9, 'sep.':9,
+              'october':10, 'oct.':10,
+              'november':11, 'nov.':11,
+              'december':12, 'dec.':12}
+    match = re.search('|'.join(months.keys()), text, flags = re.IGNORECASE) 
     if not match:
         if 'undated' in text.lower():
             return 'Undated'
@@ -63,7 +73,7 @@ def extract_date(text, offset=0):
 
     # We found one. Use the match to get the month found, and then its index in the year.
     month_name = text[match.start() : match.end()]
-    month = months.index(month_name.lower()) + 1
+    month = months[month_name.lower()]
 
 
     # Now that we have the month, the day and year should surround the month.
