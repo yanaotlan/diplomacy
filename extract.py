@@ -64,8 +64,7 @@ def extract_date(text, offset=0):
     # We found one. Use the match to get the month found, and then its index in the year.
     month_name = text[match.start() : match.end()]
     month = months.index(month_name.lower()) + 1
-    
-    print(month)
+
 
     # Now that we have the month, the day and year should surround the month.
     # We will find all the numbers in that small segment of the text, and then
@@ -83,8 +82,6 @@ def extract_date(text, offset=0):
     search_begin = max(search_begin - len('NNth '), 0)
     search_end = min(match.end() + 30, len(text))
     search_space = text[search_begin : search_end]
-    
-    print(search_space)
 
     # The special character \d matches a digit, and + means "one or more of the previous". So fo
     # instance re.findall('\d+', 'there are 14 geese with 2 wings') will return ['14', '2'].
@@ -138,7 +135,9 @@ def tests():
     test_extract_date('on the 12th day of May, in the year 1865','1865-05-12')
     test_extract_date('on the 12th day of May, in the year of our Lord 1865','1865-05-12')
     test_extract_date('File No. 837.00/571. [Document 336]February 19, 1912.No. 122.]Sir: I','1912-02-19')
-    
+    test_extract_date('Department of State, Washington, January 24, 19111 ','1911-01-24')
+    test_extract_date('Telegram transmitted to the Secretary of State Dec. 11, 1911','1911-12-11')
+        
 def extract_page_contents(path):
     """Extract title, date and text from the given HTML document (returns True if successful)"""
     page = open(path, mode = 'r', encoding = 'utf-8')
@@ -190,6 +189,6 @@ def main():
                                      page])
 
 if __name__ == '__main__':
-    #main()
-    tests()
+    main()
+    #tests()
     #prefix_tests()
