@@ -94,7 +94,8 @@ def extract_date(text, offset=0):
               'october':10, 'oct.':10,
               'november':11, 'nov.':11,
               'december':12, 'dec.':12}
-    match = re.search('|'.join(months.keys()), text, flags = re.IGNORECASE) 
+    exp = '|'.join(months.keys()).replace('.','\.') #make 'january|jan|february|feb...'
+    match = re.search(exp, text, flags = re.IGNORECASE) 
     if not match:
         if 'undated' in text.lower():
             return 'Undated'
