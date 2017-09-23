@@ -54,21 +54,17 @@ def find_previous_word(text, offset=0):
     num_spaces = 0
     i = offset
     
-    while (text[i].isalnum() or text[i].isspace()):
+    while i >= 0 and (text[i].isalnum() or text[i].isspace()):
         if text[i].isspace():
             num_spaces += 1
             if num_spaces == 2:
-                return i + 1
-            
-        if i == 0:
-            return 0
+                break
+        else:
+            offset = i
         
         i -= 1
     
-    i += 1
-    while text[i].isspace():
-        i += 1
-    return i
+    return offset
 
 def previous_tests():
     expect_equal(find_previous_word('one two three', 4), 0, 'first')
