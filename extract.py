@@ -116,7 +116,9 @@ def extract_date(text, offset=0):
         search_begin -= len(' of ') # same as "search_begin - 8"
     
     search_begin = find_previous_word(text, search_begin)
-    search_end = min(match.end() + 30, len(text))
+    search_end = text.find('.', match.end())
+    if search_end < 0:
+        search_end = len(text)
     search_space = text[search_begin : search_end]
 
     # The special character \d matches a digit, and + means "one or more of the previous". So fo
@@ -172,7 +174,8 @@ def run_tests():
              ('on the 12th day of May, in the year 1865','1865-05-12'),
              ('on the 12th day of May, in the year of our Lord 1865','1865-05-12'),
              ('File No. 837.00/571. [Document 336]February 19, 1912.No. 122.]Sir: I','1912-02-19'),
-             ('Telegram transmitted to the Secretary of State Dec. 11, 1911','1911-12-11')]
+             ('Telegram transmitted to the Secretary of State Dec. 11, 1911','1911-12-11'),
+             ('Honolulu, June 2,                                 1964, 8:30–11:50                                 a.m.', '1964-06-02')]
     num_success = 0
     for (text, expected_result) in tests:
         success = test_extract_date(text,expected_result)
