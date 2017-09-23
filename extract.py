@@ -40,8 +40,10 @@ def is_prefixed_by(text, prefix, offset):
 def expect_equal(value, ref, text):
     if value == ref:
         print('PASS: ' + str(text) + ' => ' + str(value))
+        return True
     else:
-        print('FAIL: ' + str(text) + ' => ' + str(value))   
+        print('FAIL: ' + str(text) + ' => ' + str(value))  
+        return False
 
 def prefix_tests():
     expect_equal(is_prefixed_by('nyan','nya',3),True,'nyan')
@@ -121,33 +123,39 @@ def extract_date(text, offset=0):
 
 def test_extract_date(text, date):
     res = extract_date(text)
-    expect_equal(res, date, text)
+    return expect_equal(res, date, text)
+    
 
-def tests():
-    test_extract_date('January 4, 1952.', '1952-01-04')
-    test_extract_date('June 19, 1953.', '1953-06-19')
-    test_extract_date('October 8, 1954-7 p.m.', '1954-10-08')
-    test_extract_date('White House, 9:05 a.m., December 17, 1954', '1954-12-17')
-    test_extract_date('Washington, undated', 'Undated')
-    test_extract_date('May4, 1865', '1865-05-04')
-    test_extract_date('Nyans were born in September, 1990', '1990-09')
-    test_extract_date('Creatures were born in February 1980, on the 20th', '1980-02-20')
-    test_extract_date('Undated', 'Undated')
-    test_extract_date('14th of May, 1865', '1865-05-14')
-    test_extract_date('14th day of May, 1865', '1865-05-14')
-    test_extract_date('We met on the 10th of April, but the agreement was signed on the 16th day of May, 1992', '1992-05-16')
-    test_extract_date('the 22d day of the month of April, 1865', '1865-04-22')
-    test_extract_date('15th day of September (Saturday), 1990', '1990-09-15')
-    test_extract_date('15th April, 1986', '1986-04-15')
-    #test_extract_date('15th day of September (Saturday), of the year 1990.','1990-09-15')
-    test_extract_date('april 22nd, 1986', '1986-04-22')
-    #test_extract_date('the second day of June, the year of our Lord One thousand eight hundred and sixty-five.','1865-06-02')
-    test_extract_date('on the 12th day of May, in the year 1865','1865-05-12')
-    test_extract_date('on the 12th day of May, in the year of our Lord 1865','1865-05-12')
-    test_extract_date('File No. 837.00/571. [Document 336]February 19, 1912.No. 122.]Sir: I','1912-02-19')
-    test_extract_date('Department of State, Washington, January 24, 19111 ','1911-01-24')
-    test_extract_date('Telegram transmitted to the Secretary of State Dec. 11, 1911','1911-12-11')
-        
+def run_tests():
+    tests = [('January 4, 1952.', '1952-01-04'), 
+             ('June 19, 1953.', '1953-06-19'),
+             ('October 8, 1954-7 p.m.', '1954-10-08'),
+             ('White House, 9:05 a.m., December 17, 1954', '1954-12-17'),
+             ('Washington, undated', 'Undated'),
+             ('May4, 1865', '1865-05-04'),
+             ('Nyans were born in September, 1990', '1990-09'),
+             ('Creatures were born in February 1980, on the 20th', '1980-02-20'),
+             ('Undated', 'Undated'),
+             ('14th of May, 1865', '1865-05-14'),
+             ('14th day of May, 1865', '1865-05-14'),
+             ('We met on the 10th of April, but the agreement was signed on the 16th day of May, 1992', '1992-05-16'),
+             ('the 22d day of the month of April, 1865', '1865-04-22'),
+             ('15th day of September (Saturday), 1990', '1990-09-15'),
+             ('15th April, 1986', '1986-04-15'),
+             #('15th day of September (Saturday), of the year 1990.','1990-09-15'),
+             ('april 22nd, 1986', '1986-04-22'),
+             #('the second day of June, the year of our Lord One thousand eight hundred and sixty-five.','1865-06-02'),
+             ('on the 12th day of May, in the year 1865','1865-05-12'),
+             ('on the 12th day of May, in the year of our Lord 1865','1865-05-12'),
+             ('File No. 837.00/571. [Document 336]February 19, 1912.No. 122.]Sir: I','1912-02-19'),
+             ('Telegram transmitted to the Secretary of State Dec. 11, 1911','1911-12-11')]
+    num_success = 0
+    for (text, expected_result) in tests:
+        success = test_extract_date(text,expected_result)
+        if success:
+            num_success += 1
+    print('\n{} out of {} tests succeeded'.format(num_success, len(tests)))
+    
 def extract_page_contents(path):
     """Extract title, date and text from the given HTML document (returns True if successful)"""
     page = open(path, mode = 'r', encoding = 'utf-8')
@@ -199,6 +207,6 @@ def main():
                                      page])
 
 if __name__ == '__main__':
-    main()
-    #tests()
+    #main()
+    run_tests()
     #prefix_tests()
