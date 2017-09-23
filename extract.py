@@ -49,8 +49,35 @@ def prefix_tests():
     expect_equal(is_prefixed_by('nyan','nya',3),True,'nyan')
     expect_equal(is_prefixed_by('14th of May, 1865',' of ',8), True, '1865-05-14')
     expect_equal(is_prefixed_by('14th day of May, 1865', ' day of ',12), True, '1865-05-14')
-    
 
+def find_previous_word(text, offset=0):
+    num_spaces = 0
+    i = offset
+    
+    while (text[i].isalnum() or text[i].isspace()):
+        if text[i].isspace():
+            num_spaces += 1
+            if num_spaces == 2:
+                return i + 1
+            
+        if i == 0:
+            return 0
+        
+        i -= 1
+    
+    i += 1
+    while text[i].isspace():
+        i += 1
+    return i
+
+def previous_tests():
+    expect_equal(find_previous_word('one two three', 4), 0, 'first')
+    expect_equal(find_previous_word('one two three', 8), 4, 'second')
+    expect_equal(find_previous_word('one two three', 0), 0, 'zeroth')
+    expect_equal(find_previous_word('[Document 336]November', 14), 14, 'bracket')
+    expect_equal(find_previous_word('[Document 336] November', 15), 15, 'bracket2')
+    expect_equal(find_previous_word('[Document 336]hi November', 17), 14, 'bracket3')
+    
 def extract_date(text, offset=0):
     text = text[offset:]
     
@@ -91,7 +118,7 @@ def extract_date(text, offset=0):
     elif is_prefixed_by(text, ' of ', match.start()):
         search_begin -= len(' of ') # same as "search_begin - 8"
     
-    search_begin = max(search_begin - len('NNth '), 0)
+    search_begin = find_previous_word(text, search_begin)
     search_end = min(match.end() + 30, len(text))
     search_space = text[search_begin : search_end]
 
@@ -207,6 +234,7 @@ def main():
                                      page])
 
 if __name__ == '__main__':
-    #main()
-    run_tests()
+    main()
+    #run_tests()
     #prefix_tests()
+    #previous_tests()
