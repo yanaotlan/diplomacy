@@ -1,8 +1,5 @@
-#import nltk
 import pandas as pd
-import numpy as np
-import random
-import csv
+
 
 ### Extract participants
 
@@ -12,13 +9,17 @@ import csv
 #   3.1. format: sender country| sender name | receiver country | receiver name
 
 #take a random sample from the big raw file to work with
-def test_sample(file, size):
+def test_sample(file, size, column = 'Title'):
     #read the raw file
-    #with open('raw.csv', 'r') as csvfile:
-    #find out the number of rows
-    #define the sample size
-    #sample random rows
-    
+    df = pd.read_csv(file)
+    #sample the file
+    sample = df.sample(n = size, replace = False)
+    column = sample[column]
+    #print(column)
 
-    
-    
+def test_main():
+    test_sample('raw.csv', 10000)
+    #get participants ( people divided by 'to')
+
+if __name__ == '__main__':
+    test_main()
