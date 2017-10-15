@@ -33,22 +33,41 @@ def find_previous_word(text, offset=0):
     
     return text[offset:].split()[0]
 
-def identify(title, country_finder, demonym_finder, stats):
+def find_previous_words(text, offset, num_words):
+    words = []
+    while len(words) < num_words and offset > 0:
+        word = find_previous_word(text, offset)
+        words.append(word.lower())
+        offset -= len(word) + 1
+    words.reverse()
+    return words
+
+def is_country_representative(text, offset):
+    words = ' '.join(find_previous_words(text, offset, 5))
+    if re.search('of the republic of', words):
+        return True
+    if re.search('to republic of', words):
+        return True
+    if re.search('of the federal republic of', words):
+        return True
+    return find_previous_word(text, offset) == 'of'
+
+def identify(title, country_finder, demonym_finder, stats):    
     match = country_finder.search(title) 
     if not match:
-        return None
+        return None #No country name indicates internal communication 
     
-    word = find_previous_word(title, match.start())
-    if word in stats:
-        stats[word] += 1
-    else:
-        stats[word] = 1
+    if re.search('Memorandum', title, flags = re.IGNORECASE):
+        stats['memoranda_count'] += 1
+        return None #Memoranda are not direct communication
+    
+    if not is_country_representative(title, match.start()):
+        #print(title) #comment out to print valid titles
+        return None
+    stats['valid'] += 1
+    print(title) #comment out to print invalid titles
         
-    if word == 'of':
-        print(title)
- 
-        #print('Found \'in {}\' in {}'.format(match.group(0), title))
-
+    
 def get_date(row):
     if row['Date'] != 'NA' and row['Date'] != 'Undated':
         return row['Date']
@@ -89,7 +108,7 @@ def main():
        country_finder = make_finder(countries)
        demonym_finder = make_finder(demonyms)
        
-       stats = {}
+       stats = {'memoranda_count': 0, 'valid': 0}
        for row in reader:
           #print(get_date(row))
            #if get_date(row) < '1930' or get_date(row) == 'NA' or get_date(row) == 'Undated':
