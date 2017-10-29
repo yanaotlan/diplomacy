@@ -9,6 +9,7 @@ Created on Sun Oct  8 09:18:34 2017
 import csv
 import re
 import json
+import sys
 import collections
 
 def is_prefixed_by(text, prefix, offset):
@@ -52,7 +53,7 @@ def is_country_representative(text, offset):
         return True
     return find_previous_word(text, offset) == 'of'
 
-def identify(title, country_finder, demonym_finder, stats):    
+def identify_participants(title, country_finder, demonym_finder, stats):    
     match = country_finder.search(title) 
     if not match:
         return None #No country name indicates internal communication 
@@ -66,10 +67,31 @@ def identify(title, country_finder, demonym_finder, stats):
         return None
     stats['valid'] += 1
     print(title) #comment out to print invalid titles
-        
+    
+def track_countries(text, date, countries, country_finder, writer):
+    if date == '' or date == 'NA' or date == 'Undated':
+        return
+    
+    countries_found = set()
+    match_iter = country_finder.finditer(text)
+    for match in match_iter:
+        country = match.group(0)
+        if not country[0].isalpha():
+            country = country[1:]
+                              
+        if not country[-1].isalpha():
+            country = country[:-1]
+        try:
+            ccode = countries[country.lower()]
+            countries_found.add((country, ccode))
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+    
+    for (country, ccode) in countries_found:
+        writer.writerow([date, country, ccode])
     
 def get_date(row):
-    if row['Date'] != 'NA' and row['Date'] != 'Undated':
+    if row['Date'] != 'NA' and row['Date'] != 'Undated' and row['Date'] != '':
         return row['Date']
     else:
         return row['Possible Date']
@@ -77,11 +99,21 @@ def get_date(row):
 def read_countries():
     with open('countries.csv', mode = 'r', encoding = 'utf-8') as csvfile:
        reader = csv.DictReader(csvfile)
-       countries = []
+       countries = ['soviet union']
        for row in reader:
            country = row['StateNme']
            if country not in countries:
                countries.append(country)
+       return countries
+   
+def read_country_map():
+    with open('countries.csv', mode = 'r', encoding = 'utf-8') as csvfile:
+       reader = csv.DictReader(csvfile)
+       countries = {'soviet union': 365}
+       for row in reader:
+           country = row['StateNme'].lower()
+           ccode = row['CCode']
+           countries[country] = ccode
        return countries
    
 def read_demonyms():
@@ -95,26 +127,30 @@ def read_demonyms():
         return demonyms
 
 def make_finder(names):
-    exp = '[^\w]|'.join(names)
+    exp = '|'.join([ "[^\w]" + name + "[^\w]" for name in names])
     return re.compile(exp, flags = re.IGNORECASE)  
 
 
 def main():
-    with open('new_raw.csv', mode = 'r', encoding = 'utf-8') as csvfile:
-       reader = csv.DictReader(csvfile)
+    with open('raw.csv', mode = 'r', encoding = 'utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        csv.field_size_limit(sys.maxsize)
+        
+        with open('country_timeline.csv', 'w') as csvfile:
+            writer = csv.writer(csvfile) 
+            writer.writerow(['Date','Country','CCode'])
+            
+            countries = read_country_map()
+            demonyms = read_demonyms()
+            country_finder = make_finder(countries.keys())
+            #demonym_finder = make_finder(demonyms)
        
-       countries = read_countries()
-       demonyms = read_demonyms()
-       country_finder = make_finder(countries)
-       demonym_finder = make_finder(demonyms)
-       
-       stats = {'memoranda_count': 0, 'valid': 0}
-       for row in reader:
-          #print(get_date(row))
-           #if get_date(row) < '1930' or get_date(row) == 'NA' or get_date(row) == 'Undated':
-               #continue
-           identify(row['Title'], country_finder, demonym_finder, stats)
-       print(stats)
+            #stats = {'memoranda_count': 0, 'valid': 0}
+            for row in reader:
+                track_countries(row['Text'], get_date(row), countries, country_finder, writer)
+
+                #identify_participants(row['Title'], country_finder, demonym_finder, stats)
+            #print(stats)
            
 if __name__ == '__main__':
     main()

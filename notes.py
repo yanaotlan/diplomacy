@@ -21,3 +21,11 @@ def identify(title, country_finder, demonym_finder, stats):
         #print('Found \'in {}\' in {}'.format(match.group(0), title))
         #exclude: and before cname, memorandum, to, between, in, for
         #include Federal Republic of, to Republic of China 
+        
+        
+        
+Next time!
+add participants to all messages where applicable (US and ...)
+mark valid messages
+write to csv
+add code to create new_raw_csv to identify.py
